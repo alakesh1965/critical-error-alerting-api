@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="alertingsystemFlow" doc:id="8789868a-1775-4d0a-833c-b25e453e8212" >
+		<http:listener doc:name="Listener" doc:id="f094ea0a-79a6-4d71-b6de-18d5dfb8d142" path="/process" config-ref="HTTP_Listener_config"/>
+		<logger level="DEBUG" doc:name="Start Processing" message="Processing request..." />
+		<try doc:name="Try" doc:id="ec2adb7a-df93-4139-9ce3-47b235cf38fd" >
+			<http:request config-ref="HTTP_Request_configuration" path="${http.path}" method="GET" doc:name="targetFlowViaHttp">
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="449adf65-126f-4b8c-adda-1d35f9795a99" type="HTTP:CONNECTIVITY">
+					<set-variable value='#["CONNECTIVITY"]' doc:name="Set Variable" doc:id="bfffb06f-373c-437f-a359-4ca4e0c92f95" variableName="httpErrorType"/>
+				</on-error-propagate>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="05e8ee13-f5ca-4e60-a4ac-4b3f764167fe" type="HTTP:BAD_REQUEST">
+					<set-variable value='#["BAD_REQUEST"]' doc:name="Set Variable" doc:id="9ce320e1-6a76-45eb-9f39-276ac0a12598" variableName="httpErrorType1"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Processing Complete" message="Request processed successfully." />
+		<set-payload value="Successfully triggered and received response from myTargetFlowViaHttp via HTTP Requestor" doc:name="Processing complete message" doc:id="ee02999f-f024-494a-b34a-8986b6264383" />
+		<error-handler ref="globalErrorHandler" />
+	</flow>
+</mule>

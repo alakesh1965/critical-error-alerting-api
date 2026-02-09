@@ -1,0 +1,10 @@
+{
+  "minMuleVersion": "4.6.13",
+  "javaSpecificationVersions": ["17"],
+  "secureProperties": [
+        "vault.key",
+        "smtp.to.user",
+        "anypoint.platform.client_id",
+        "anypoint.platform.client_secret"
+    ]
+}

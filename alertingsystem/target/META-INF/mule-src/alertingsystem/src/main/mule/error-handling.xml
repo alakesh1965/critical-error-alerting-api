@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<error-handler name="globalErrorHandler">
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate">
+            <set-variable value="#[error.description]" doc:name="Set Error Description" variableName="errorDescription" />
+            <set-variable value="#[error.detailedDescription]" doc:name="Set Detailed Description" variableName="detailedDescription" />
+            <set-variable value="#[flow.name]" doc:name="Set Flow Name" variableName="flowName" />
+            <set-variable value="#[payload]" doc:name="Set Payload at Error" doc:id="5ff74a11-5689-4709-a408-4c2530307b32" variableName="payloadAtError"/>
+            <set-variable value="#[correlationId]" doc:name="Set Correlation ID" variableName="correlationId" />
+			<choice doc:name="Choice based on Error Type">
+                <when expression="#[vars.httpErrorType == 'CONNECTIVITY']">
+                    <!-- <flow-ref doc:name="Send Critical Email Alert" name="send-critical-alert-email-subflow" /> -->
+					<flow-ref doc:name="EMAIL_Send Critical Alert" doc:id="872ee5bc-428f-46c8-9265-e98e9ea2a0d9" name="send-critical-alert-email-subflow" />
+					<flow-ref doc:name="SMS_Send Critical Alert" doc:id="75a6d2ff-5bb6-4442-bc8b-a77939a6041b" name="send-critical-alert-sms-Sub_Flow" />
+                
+</when>
+                <when expression="#[vars.httpErrorType1 == 'BAD_REQUEST']">
+					<flow-ref doc:name="EMAIL_Send Critical Alert" doc:id="b7bb7072-a14f-499e-9927-2cfe6927c876" name="send-critical-alert-email-subflow" />
+					<flow-ref doc:name="SMS_Send Critical Alert" doc:id="ddaec2c4-0cd5-47d3-8837-a790b2d85440" name="send-critical-alert-sms-Sub_Flow"/>
+				</when>
+				<otherwise>
+                    <logger level="WARN" doc:name="Log Non-Critical Error" message="Non-critical error occurred: #[error.description]" />
+                </otherwise>
+            </choice>
+        </on-error-propagate>
+		</error-handler>
+</mule>

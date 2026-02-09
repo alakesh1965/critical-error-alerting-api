@@ -1,0 +1,11 @@
+File (#[vars.flowname]) was not processed as the flowname is having Error.
+
+Here are the details for the existing flow:
+Critical Error Notification: 
+	Timestamp : #[vars.timestamp as String {format: "yyyy-MM-dd HH:mm:ss"}]
+	Flow Name: #[vars.flowName]
+	Error Description: #[vars.errorDescription]
+	Detailed Message: #[vars.detailedDescription]
+	Correlation ID: #[vars.correlationId]
+	Payload at Error: #[vars.payloadAtError]
+Please investigate immediately.

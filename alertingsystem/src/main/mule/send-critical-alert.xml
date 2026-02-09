@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="send-critical-alert-email-subflow" doc:id="764b8bda-2e9d-4a59-a3f5-90c617ad35ef">
+    <logger level="INFO" doc:name="Log Alert Triggered" message="Critical alert triggered for: #[vars.flowName]"/>
+
+    <set-variable value="#[now()]" doc:name="Set Timestamp" variableName="timestamp"/>
+		<parse-template doc:name="Prepare Email Content" doc:id="3bbea41c-58eb-4a72-9738-05611270f549" location="templates/Error-email.template" />
+		<email:send doc:name="SMTP" doc:id="3ae25067-b0a7-4e10-8e41-349be7dbfebb" fromAddress="${secure::smtp.user}" subject='#["CRITICAL ALERT: API Failure"]' config-ref="Email_SMTP">
+				<email:to-addresses >
+				<email:to-address value="${secure::smtp.to.user}" />
+			</email:to-addresses>
+			<email:body contentType="text/plain">
+			</email:body>
+			</email:send>
+		<logger level="INFO" doc:name="Log Email Sent" message="Critical alert email sent successfully."/>
+</sub-flow>
+	<sub-flow name="send-critical-alert-sms-Sub_Flow" doc:id="8be4b5f1-13db-4371-8e47-1f6fd7159958" >
+		<set-variable value="#[now()]" doc:name="Set Timestamp" doc:id="6a116744-d8d3-4252-975c-a12c00b64a70" variableName="timestamp" />
+		<ee:transform doc:name="Transform Message" doc:id="506ce4eb-b123-440c-bf3f-eb846e511cba" >
+			<ee:message >
+				<ee:set-payload resource="dwl/smsPayload.dwl" />
+			</ee:message>
+		</ee:transform>
+		<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Send SMS" doc:id="b49d8f47-f921-4bda-aae1-60fbd80f1609" config-ref="Twilio_Connector_Config" accountSid="${secure::twilio.user}" />
+		<ee:transform doc:name="Transform Message" doc:id="3e9a248c-9694-46c6-80c7-b11a6822e78b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log SMS Sent" doc:id="cca9c969-c920-456e-a8bb-f979f8d4b9ca" message="Critical alert SMS sent successfully." />
+	</sub-flow>
+</mule>
